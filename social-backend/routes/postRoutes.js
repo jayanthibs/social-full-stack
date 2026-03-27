@@ -37,4 +37,28 @@ router.get("/", async (req, res) => {
   }
 });
 
+// DELETE /api/posts/id of the post
+router.delete('/:id', async (req, res) => {
+    try {
+
+        // find the post based of route parameter
+        const post = await Post.findById(req.params.id)
+
+        // check if the post's id is NOT the same as the logged in user's id
+        if (post.author.toString() !== req.user._id) {
+            return res.status(403).json({ message: 'User does not own this post' })
+        }
+
+        // proceed with deleting the post
+        await Post.findByIdAndDelete(req.params.id)
+
+        res.status(200).json({ message: "Post deleted successfully" })
+
+    } catch(err) {
+        console.log(err.message)
+        res.status(400).json({ message: err.message })
+    }
+})
+
+
 export default router;
